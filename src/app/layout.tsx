@@ -4,6 +4,7 @@ import AppProvider from "@/components/AppProvider";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import CookieBanner from "@/components/CookieBanner";
+import BottomNav from "@/components/BottomNav";
 
 export const metadata: Metadata = {
   title: "PrayCircle — United in prayer",
@@ -47,6 +48,7 @@ export default function RootLayout({
             {children}
             <Footer />
           </main>
+          <BottomNav />
           <CookieBanner />
         </AppProvider>
       </body>

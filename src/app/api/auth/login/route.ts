@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { getDb } from "@/lib/db";
 import { createSession } from "@/lib/auth";
+import { checkRateLimit, clientIp } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -12,6 +13,15 @@ export async function POST(request: Request) {
     const password = String(body.password || "");
 
     const db = await getDb();
+    const allowed = await checkRateLimit(
+      db,
+      `login:${clientIp(request)}`,
+      20,
+      15 * 60 * 1000
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
     const result = await db.execute({
       sql: "SELECT id, username, password_hash, language FROM users WHERE email = ?",
       args: [email],

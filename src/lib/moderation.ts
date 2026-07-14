@@ -75,6 +75,40 @@ export function moderatePost(raw: string): ModerationResult {
   return { ok: true };
 }
 
+/**
+ * Second moderation layer: when ANTHROPIC_API_KEY is configured, an LLM
+ * verifies the text is a genuine, non-hateful prayer intention before it
+ * is published. Fails open (allows) on API errors so posting never breaks.
+ */
+export async function aiModerate(content: string): Promise<boolean> {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey) return true;
+  try {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 5,
+        system:
+          "You moderate a Catholic prayer-intention app. The user submits a short text. Answer with exactly one word: ALLOW if it is a genuine prayer intention or request for prayer (any language, any topic of genuine need or thanksgiving), or BLOCK if it contains hate, racism, harassment, threats, obscenity, mockery of faith, spam/advertising, or is clearly not a prayer intention.",
+        messages: [{ role: "user", content }],
+      }),
+      signal: AbortSignal.timeout(6000),
+    });
+    if (!response.ok) return true;
+    const data = await response.json();
+    const verdict = String(data?.content?.[0]?.text ?? "ALLOW").toUpperCase();
+    return !verdict.includes("BLOCK");
+  } catch {
+    return true;
+  }
+}
+
 export function validateUsername(raw: string): string | null {
   const username = raw.trim();
   if (!/^[a-zA-Z0-9_.]{3,20}$/.test(username)) return null;

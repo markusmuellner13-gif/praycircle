@@ -61,6 +61,14 @@ export async function DELETE() {
     args: [session.id],
   });
   await db.execute({
+    sql: "DELETE FROM push_subscriptions WHERE user_id = ?",
+    args: [session.id],
+  });
+  await db.execute({
+    sql: "DELETE FROM reports WHERE user_id = ?",
+    args: [session.id],
+  });
+  await db.execute({
     sql: "DELETE FROM users WHERE id = ?",
     args: [session.id],
   });

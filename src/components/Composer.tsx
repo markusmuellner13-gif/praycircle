@@ -40,6 +40,8 @@ export default function Composer({ onCreated }: { onCreated: (post: Post) => voi
           setError(reasons[data.reason] ?? t.error);
         } else if (data.error === "unauthorized") {
           router.push("/login");
+        } else if (data.error === "rate_limited") {
+          setError(t.rateLimited);
         } else {
           setError(t.error);
         }

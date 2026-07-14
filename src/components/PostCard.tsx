@@ -44,9 +44,17 @@ export default function PostCard({
   const [translating, setTranslating] = useState(false);
   const [translateError, setTranslateError] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [reported, setReported] = useState(false);
 
   const isMine = user?.id === post.userId;
   const foreignLanguage = post.language !== lang;
+
+  const prayedLine =
+    count === 0
+      ? t.prayedNone
+      : count === 1
+        ? t.prayedOne
+        : t.prayedMany.replace("{n}", String(count));
 
   const handlePray = () => {
     if (!user) {
@@ -91,19 +99,36 @@ export default function PostCard({
     }
   };
 
+  const handleReport = async () => {
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    if (!confirm(t.reportConfirm)) return;
+    setReported(true);
+    fetch(`/api/posts/${post.id}/report`, { method: "POST" }).catch(() => {});
+  };
+
   return (
     <article className="card">
       <div className="post-meta">
         <span className="username">@{post.username}</span>
         <span>·</span>
         <span>{timeAgo(post.createdAt, t)}</span>
-        {isMine && (
-          <>
-            <span style={{ marginLeft: "auto" }} />
-            <button className="link-btn" onClick={handleDelete} disabled={deleting}>
-              {t.deletePost}
-            </button>
-          </>
+        <span style={{ marginLeft: "auto" }} />
+        {isMine ? (
+          <button className="link-btn" onClick={handleDelete} disabled={deleting}>
+            {t.deletePost}
+          </button>
+        ) : (
+          <button
+            className="link-btn"
+            onClick={handleReport}
+            disabled={reported}
+            title={t.report}
+          >
+            {reported ? `⚑ ${t.reported}` : "⚑"}
+          </button>
         )}
       </div>
       <p className="post-content">
@@ -126,9 +151,7 @@ export default function PostCard({
                 : t.translate}
           </button>
         )}
-        <span className="pray-count">
-          🕯️ {count} {count === 1 ? t.prayers_one : t.prayers_other}
-        </span>
+        <span className="pray-count">🕯️ {prayedLine}</span>
       </div>
       {praying && (
         <PrayerModal

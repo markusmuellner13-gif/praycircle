@@ -1,26 +1,37 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
 import { LANGS, LANG_LABELS, type Lang } from "@/lib/i18n";
+import PostCard, { type Post } from "@/components/PostCard";
+import EnablePush from "@/components/EnablePush";
 
 export default function AccountPage() {
   const { user, setUser, lang, setLang, t, ready } = useApp();
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [myPosts, setMyPosts] = useState<Post[] | null>(null);
 
-  if (!ready) {
+  useEffect(() => {
+    if (!ready) return;
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+    fetch("/api/posts?mine=1")
+      .then((r) => (r.ok ? r.json() : Promise.reject()))
+      .then((data) => setMyPosts(data.posts))
+      .catch(() => setMyPosts([]));
+  }, [ready, user, router]);
+
+  if (!ready || !user) {
     return (
       <div className="empty-state">
         <div className="spinner" />
       </div>
     );
-  }
-  if (!user) {
-    router.push("/login");
-    return null;
   }
 
   const signOut = async () => {
@@ -63,6 +74,10 @@ export default function AccountPage() {
             ))}
           </div>
         </div>
+        <div className="field">
+          <label>{t.notifications}</label>
+          <EnablePush />
+        </div>
         <div style={{ display: "flex", gap: 10, marginTop: 20, flexWrap: "wrap" }}>
           <button className="btn btn-ghost btn-sm" onClick={signOut}>
             {t.signOut}
@@ -75,6 +90,27 @@ export default function AccountPage() {
           </button>
         </div>
       </div>
+
+      <h2 className="page-title" style={{ fontSize: "1.15rem" }}>
+        {t.yourIntentions}
+      </h2>
+      {myPosts === null ? (
+        <div className="empty-state">
+          <div className="spinner" />
+        </div>
+      ) : myPosts.length === 0 ? (
+        <div className="empty-state">🕊️ {t.noPostsYet}</div>
+      ) : (
+        myPosts.map((post) => (
+          <PostCard
+            key={post.id}
+            post={post}
+            onDeleted={(id) =>
+              setMyPosts((prev) => (prev ? prev.filter((p) => p.id !== id) : prev))
+            }
+          />
+        ))
+      )}
 
       {confirming && (
         <div className="overlay" onClick={() => setConfirming(false)}>

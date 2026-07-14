@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { getDb, newId } from "@/lib/db";
 import { createSession } from "@/lib/auth";
 import { validateUsername } from "@/lib/moderation";
+import { checkRateLimit, clientIp } from "@/lib/ratelimit";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +28,16 @@ export async function POST(request: Request) {
     }
 
     const db = await getDb();
+
+    const allowed = await checkRateLimit(
+      db,
+      `signup:${clientIp(request)}`,
+      5,
+      60 * 60 * 1000
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
 
     const existingUsername = await db.execute({
       sql: "SELECT id FROM users WHERE username = ?",

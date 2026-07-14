@@ -24,6 +24,8 @@ interface AppContextValue {
   cycleLang: () => void;
   t: Dict;
   ready: boolean;
+  unread: number;
+  refreshUnread: () => void;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -38,6 +40,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [lang, setLangState] = useState<Lang>("en");
   const [ready, setReady] = useState(false);
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     const stored = localStorage.getItem("praycircle_lang");
@@ -49,10 +52,7 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       .then((data) => {
         if (data.user) {
           setUser(data.user);
-          if (
-            !stored &&
-            LANGS.includes(data.user.language as Lang)
-          ) {
+          if (!stored && LANGS.includes(data.user.language as Lang)) {
             setLangState(data.user.language as Lang);
           }
         }
@@ -64,6 +64,25 @@ export default function AppProvider({ children }: { children: ReactNode }) {
       navigator.serviceWorker.register("/sw.js").catch(() => {});
     }
   }, []);
+
+  const refreshUnread = useCallback(() => {
+    fetch("/api/notifications")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data) setUnread(data.unread ?? 0);
+      })
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    if (!user) {
+      setUnread(0);
+      return;
+    }
+    refreshUnread();
+    const interval = setInterval(refreshUnread, 30000);
+    return () => clearInterval(interval);
+  }, [user, refreshUnread]);
 
   const setLang = useCallback(
     (next: Lang) => {
@@ -87,7 +106,17 @@ export default function AppProvider({ children }: { children: ReactNode }) {
 
   return (
     <AppContext.Provider
-      value={{ user, setUser, lang, setLang, cycleLang, t: DICTS[lang], ready }}
+      value={{
+        user,
+        setUser,
+        lang,
+        setLang,
+        cycleLang,
+        t: DICTS[lang],
+        ready,
+        unread,
+        refreshUnread,
+      }}
     >
       {children}
     </AppContext.Provider>

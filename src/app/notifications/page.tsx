@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import EnablePush from "@/components/EnablePush";
 
 interface Notification {
   id: string;
@@ -12,7 +13,7 @@ interface Notification {
 }
 
 export default function NotificationsPage() {
-  const { user, t, ready } = useApp();
+  const { user, t, ready, refreshUnread } = useApp();
   const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[] | null>(null);
 
@@ -28,11 +29,13 @@ export default function NotificationsPage() {
         setNotifications(data.notifications);
         // Everything is now seen — mark as read.
         if (data.unread > 0) {
-          fetch("/api/notifications", { method: "POST" }).catch(() => {});
+          fetch("/api/notifications", { method: "POST" })
+            .then(() => refreshUnread())
+            .catch(() => {});
         }
       })
       .catch(() => setNotifications([]));
-  }, [ready, user, router]);
+  }, [ready, user, router, refreshUnread]);
 
   const formatTime = (timestamp: number) =>
     new Date(timestamp).toLocaleString();
@@ -40,6 +43,9 @@ export default function NotificationsPage() {
   return (
     <>
       <h1 className="page-title">{t.notifTitle}</h1>
+      <div style={{ margin: "6px 0 4px" }}>
+        <EnablePush />
+      </div>
       {notifications === null ? (
         <div className="empty-state">
           <div className="spinner" />

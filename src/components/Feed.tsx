@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useApp } from "./AppProvider";
 import PostCard, { type Post } from "./PostCard";
-import Composer from "./Composer";
 
 export default function Feed() {
   const { t } = useApp();
@@ -40,7 +39,6 @@ export default function Feed() {
 
   return (
     <>
-      <Composer onCreated={(post) => setPosts((prev) => [post, ...prev])} />
       {loading ? (
         <div className="empty-state">
           <div className="spinner" />

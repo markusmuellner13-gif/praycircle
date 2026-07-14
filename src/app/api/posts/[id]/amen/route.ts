@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
+import { after } from "next/server";
 import { getDb, newId } from "@/lib/db";
 import { getSession } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/ratelimit";
+import { sendPushToUser } from "@/lib/push";
 
 export const dynamic = "force-dynamic";
+
+const PUSH_BODY: Record<string, string> = {
+  en: "Someone prayed for your intention",
+  de: "Jemand hat für dein Anliegen gebetet",
+  it: "Qualcuno ha pregato per la tua intenzione",
+};
 
 /** Seals the prayer: increments the counter and notifies the author. */
 export async function POST(
@@ -16,6 +25,17 @@ export async function POST(
     }
     const { id } = await params;
     const db = await getDb();
+
+    const allowed = await checkRateLimit(
+      db,
+      `amen:${session.id}`,
+      60,
+      60 * 60 * 1000
+    );
+    if (!allowed) {
+      return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+    }
+
     const postResult = await db.execute({
       sql: "SELECT id, user_id, content FROM posts WHERE id = ?",
       args: [id],
@@ -37,6 +57,24 @@ export async function POST(
       await db.execute({
         sql: "INSERT INTO notifications (id, user_id, post_id, post_excerpt, type, read, created_at) VALUES (?, ?, ?, ?, 'prayed', 0, ?)",
         args: [newId(), authorId, id, excerpt, Date.now()],
+      });
+
+      // Web push, in the author's language.
+      after(async () => {
+        try {
+          const author = await db.execute({
+            sql: "SELECT language FROM users WHERE id = ?",
+            args: [authorId],
+          });
+          const lang = String(author.rows[0]?.language ?? "en");
+          await sendPushToUser(db, authorId, {
+            title: "PrayCircle 🙏",
+            body: `${PUSH_BODY[lang] ?? PUSH_BODY.en}: “${excerpt}”`,
+            url: "/notifications",
+          });
+        } catch {
+          // In-app notification already stored; push is best-effort.
+        }
       });
     }
 
