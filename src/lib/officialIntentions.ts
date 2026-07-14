@@ -115,7 +115,17 @@ async function fetchGdacsAlerts(): Promise<OfficialEvent[]> {
       // Titles look like "Red notification for tropical cyclone X. Population
       // affected by …" — keep only the first sentence.
       const firstSentence = title.split(". ")[0].replace(/\.$/, "");
-      const headline = firstSentence.length >= 20 ? firstSentence : title;
+      let headline = firstSentence.length >= 20 ? firstSentence : title;
+      // GDACS titles carry a color word that can lag behind the actual
+      // alert level (a Green-titled event can be Orange in the data), so
+      // drop it and tidy the boilerplate.
+      headline = headline
+        .replace(/^(green|orange|red)\s+/i, "")
+        .replace(/^notification (for|of)\s+/i, "")
+        .replace(/\s+notification in\s+/i, " in ")
+        .replace(/\bis on going\b/i, "is ongoing")
+        .trim();
+      headline = headline.charAt(0).toUpperCase() + headline.slice(1);
       events.push({
         sourceId: `gdacs:${guid}`,
         content: truncate(
