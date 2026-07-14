@@ -1,0 +1,22 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#151b30"/>
+      <stop offset="1" stop-color="#0b0f1d"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.42" r="0.55">
+      <stop offset="0" stop-color="#e6b95c" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#e6b95c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="flame" x1="256" y1="120" x2="256" y2="330" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#f7dca0"/>
+      <stop offset="1" stop-color="#e0a83e"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#bg)"/>
+  <rect width="512" height="512" fill="url(#glow)"/>
+  <circle cx="256" cy="272" r="152" stroke="#e6b95c" stroke-width="22"
+          stroke-linecap="round" stroke-dasharray="712 244" transform="rotate(126 256 272)"/>
+  <path d="M256 128c35 46 57.5 79.5 57.5 113 0 37.5-25.5 63.5-57.5 63.5s-57.5-26-57.5-63.5c0-33.5 22.5-67 57.5-113z" fill="url(#flame)"/>
+  <path d="M256 196c16.5 22.5 27.5 38.5 27.5 54.5 0 18.5-12 31.5-27.5 31.5s-27.5-13-27.5-31.5c0-16 11-32 27.5-54.5z" fill="#141a2e"/>
+</svg>
