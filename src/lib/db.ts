@@ -84,7 +84,21 @@ CREATE TABLE IF NOT EXISTS translations (
   text TEXT NOT NULL,
   PRIMARY KEY (post_id, language)
 );
+
+CREATE TABLE IF NOT EXISTS meta (
+  key TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);
 `;
+
+/** Idempotent column additions for databases created before these fields
+ *  existed. "duplicate column" errors are expected and swallowed. */
+const MIGRATIONS = [
+  "ALTER TABLE users ADD COLUMN official INTEGER NOT NULL DEFAULT 0",
+  "ALTER TABLE users ADD COLUMN auth_provider TEXT NOT NULL DEFAULT 'password'",
+  "ALTER TABLE users ADD COLUMN provider_sub TEXT",
+  "ALTER TABLE posts ADD COLUMN source_id TEXT",
+];
 
 export async function getDb(): Promise<Client> {
   const db = getRawClient();
@@ -94,6 +108,13 @@ export async function getDb(): Promise<Client> {
       .filter(Boolean);
     for (const stmt of statements) {
       await db.execute(stmt);
+    }
+    for (const migration of MIGRATIONS) {
+      try {
+        await db.execute(migration);
+      } catch {
+        // Column already exists.
+      }
     }
     initialized = true;
   }

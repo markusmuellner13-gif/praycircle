@@ -109,9 +109,17 @@ export async function aiModerate(content: string): Promise<boolean> {
   }
 }
 
+const RESERVED_USERNAMES = [
+  "praycircle", "official", "admin", "administrator", "moderator", "support", "system",
+];
+
 export function validateUsername(raw: string): string | null {
   const username = raw.trim();
   if (!/^[a-zA-Z0-9_.]{3,20}$/.test(username)) return null;
+  const flat = username.toLowerCase().replace(/[_.]/g, "");
+  if (RESERVED_USERNAMES.some((r) => flat === r || flat.includes("praycircle"))) {
+    return null;
+  }
   const normalized = ` ${normalize(username.replace(/[_.]/g, " "))} `;
   for (const term of BLOCKLIST) {
     if (normalized.includes(` ${term} `)) return null;

@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import OAuthButtons, { type AuthProviders } from "@/components/OAuthButtons";
 
 export default function LoginPage() {
   const { t, setUser } = useApp();
@@ -12,6 +13,18 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [providers, setProviders] = useState<AuthProviders | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/providers")
+      .then((r) => r.json())
+      .then(setProviders)
+      .catch(() => {});
+    if (new URLSearchParams(window.location.search).get("error") === "oauth") {
+      setError(t.oauthFailed);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,7 +38,13 @@ export default function LoginPage() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error === "invalid_credentials" ? t.invalidCredentials : t.error);
+        setError(
+          data.error === "invalid_credentials"
+            ? t.invalidCredentials
+            : data.error === "rate_limited"
+              ? t.rateLimited
+              : t.error
+        );
         return;
       }
       setUser(data.user);
@@ -69,6 +88,7 @@ export default function LoginPage() {
           {busy ? t.loading : t.signIn}
         </button>
       </form>
+      <OAuthButtons providers={providers} />
       <p className="auth-switch">
         {t.noAccount} <Link href="/signup">{t.signUp}</Link>
       </p>

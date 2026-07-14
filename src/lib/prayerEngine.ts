@@ -23,6 +23,7 @@ export type Category =
   | "relationship"
   | "money"
   | "peace"
+  | "disaster"
   | "thanksgiving"
   | "faith"
   | "general";
@@ -86,6 +87,12 @@ const KEYWORDS: Record<Exclude<Category, "general">, string[]> = {
     "war", "peace", "conflict", "ukraine", "violence", "refugees", "world", "country", "nation", "attack", "soldiers",
     "krieg", "frieden", "konflikt", "gewalt", "flüchtlinge", "welt", "land", "soldaten",
     "guerra", "pace", "conflitto", "violenza", "rifugiati", "mondo", "paese", "soldati",
+  ],
+  disaster: [
+    "earthquake", "tsunami", "flood", "flooding", "hurricane", "cyclone", "typhoon",
+    "tornado", "wildfire", "volcano", "eruption", "landslide", "drought", "storm", "disaster",
+    "erdbeben", "flut", "hochwasser", "wirbelsturm", "waldbrand", "vulkan", "erdrutsch", "dürre", "sturm", "katastrophe",
+    "terremoto", "alluvione", "inondazione", "uragano", "ciclone", "tifone", "incendio", "vulcano", "eruzione", "frana", "siccità", "tempesta", "disastro",
   ],
   thanksgiving: [
     "thank", "thanks", "thankful", "grateful", "gratitude", "blessing", "blessed", "praise",
@@ -197,6 +204,11 @@ const HEARTS: Record<Category, Record<Lang, string>> = {
     en: "Prince of Peace, look upon our wounded world. Silence the weapons, soften the hearts of those who wage war, and protect the innocent, the refugees and all who suffer. Make each of us an instrument of Your peace, so that hatred may be overcome by love and darkness by Your light.",
     de: "Fürst des Friedens, blicke auf unsere verwundete Welt. Lass die Waffen schweigen, erweiche die Herzen derer, die Krieg führen, und beschütze die Unschuldigen, die Flüchtlinge und alle Leidenden. Mache jeden von uns zu einem Werkzeug Deines Friedens, damit der Hass durch die Liebe besiegt wird und die Finsternis durch Dein Licht.",
     it: "Principe della Pace, guarda il nostro mondo ferito. Fa' tacere le armi, ammorbidisci i cuori di chi fa la guerra e proteggi gli innocenti, i rifugiati e tutti coloro che soffrono. Rendi ciascuno di noi uno strumento della Tua pace, perché l'odio sia vinto dall'amore e le tenebre dalla Tua luce.",
+  },
+  disaster: {
+    en: "Lord of heaven and earth, look with mercy on all who are struck by this catastrophe. Rescue those who are trapped, comfort those who have lost their homes or their loved ones, and give strength and courage to the rescuers and helpers. Move the hearts of the world to generous aid, and in the midst of the ruins let Your hope rise stronger than fear.",
+    de: "Herr des Himmels und der Erde, blicke voll Erbarmen auf alle, die von dieser Katastrophe getroffen wurden. Rette die Verschütteten, tröste alle, die ihr Zuhause oder ihre Lieben verloren haben, und gib den Rettern und Helfern Kraft und Mut. Bewege die Herzen der Welt zu großzügiger Hilfe, und lass mitten in den Trümmern Deine Hoffnung stärker aufsteigen als die Angst.",
+    it: "Signore del cielo e della terra, guarda con misericordia tutti coloro che sono stati colpiti da questa catastrofe. Salva chi è intrappolato, consola chi ha perso la casa o i propri cari, e dona forza e coraggio ai soccorritori. Muovi i cuori del mondo a un aiuto generoso, e in mezzo alle macerie fa' sorgere la Tua speranza più forte della paura.",
   },
   thanksgiving: {
     en: "We join our brother or sister in giving You thanks and praise. Every good gift comes from Your hand, and today we remember it with joy. Let gratitude grow in all our hearts, and may this blessing bear fruit that lasts, for the good of many and the glory of Your name.",

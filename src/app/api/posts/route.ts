@@ -11,6 +11,7 @@ import {
   type Lang,
 } from "@/lib/prayerEngine";
 import { checkRateLimit, clientIp } from "@/lib/ratelimit";
+import { syncOfficialIfStale } from "@/lib/officialIntentions";
 
 export const dynamic = "force-dynamic";
 
@@ -31,7 +32,7 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: "unauthorized" }, { status: 401 });
       }
       result = await db.execute({
-        sql: `SELECT p.id, p.content, p.language, p.prayer_count, p.created_at, p.user_id, u.username
+        sql: `SELECT p.id, p.content, p.language, p.prayer_count, p.created_at, p.user_id, u.username, u.official
               FROM posts p JOIN users u ON u.id = p.user_id
               WHERE p.created_at < ? AND p.user_id = ?
               ORDER BY p.created_at DESC
@@ -39,8 +40,14 @@ export async function GET(request: Request) {
         args: [before, user.id, PAGE_SIZE],
       });
     } else {
+      // Keep the official world-intentions fresh (guarded, best-effort).
+      after(async () => {
+        try {
+          await syncOfficialIfStale(db);
+        } catch {}
+      });
       result = await db.execute({
-        sql: `SELECT p.id, p.content, p.language, p.prayer_count, p.created_at, p.user_id, u.username
+        sql: `SELECT p.id, p.content, p.language, p.prayer_count, p.created_at, p.user_id, u.username, u.official
               FROM posts p JOIN users u ON u.id = p.user_id
               WHERE p.created_at < ? AND p.hidden = 0
               ORDER BY p.created_at DESC
@@ -56,6 +63,7 @@ export async function GET(request: Request) {
       createdAt: Number(row.created_at),
       userId: String(row.user_id),
       username: String(row.username),
+      official: Number(row.official) === 1,
     }));
     return NextResponse.json({
       posts,

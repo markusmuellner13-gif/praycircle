@@ -50,6 +50,7 @@ const content: Record<Lang, LegalDoc> = {
         heading: "6. Data Processors and Transfers",
         paragraphs: [
           "We use Vercel Inc. (hosting) and Turso/Iku (database hosting) as processors. Data may be processed in data centers inside and outside the European Economic Area; where transfers outside the EEA occur, they are protected by the European Commission's Standard Contractual Clauses pursuant to Art. 46 GDPR. If AI-assisted prayer generation or translation is enabled, the text of an intention (never your account data) may be processed by Anthropic to generate a prayer or translation.",
+          "If you choose 'Sign in with Google' or 'Sign in with Apple', the respective provider confirms your identity to us and shares your email address; we never receive your provider password. Sign-up may be protected by Cloudflare Turnstile, which processes technical connection data to distinguish humans from bots (legitimate interest, Art. 6(1)(f) GDPR). If you enable push notifications, an anonymous delivery address issued by your browser vendor is stored and used solely to deliver your notifications. Official intentions posted by the @PrayCircle account are based on public data from USGS and GDACS and contain no personal data.",
         ],
       },
       {
@@ -116,6 +117,7 @@ const content: Record<Lang, LegalDoc> = {
         heading: "6. Auftragsverarbeiter und Übermittlungen",
         paragraphs: [
           "Wir nutzen Vercel Inc. (Hosting) und Turso/Iku (Datenbank-Hosting) als Auftragsverarbeiter. Daten können in Rechenzentren innerhalb und außerhalb des Europäischen Wirtschaftsraums verarbeitet werden; Übermittlungen außerhalb des EWR sind durch die Standardvertragsklauseln der Europäischen Kommission gemäß Art. 46 DSGVO geschützt. Ist die KI-gestützte Gebetserzeugung oder Übersetzung aktiviert, kann der Text eines Anliegens (niemals deine Kontodaten) durch Anthropic verarbeitet werden.",
+          "Wenn du „Mit Google anmelden“ oder „Mit Apple anmelden“ wählst, bestätigt uns der jeweilige Anbieter deine Identität und übermittelt deine E-Mail-Adresse; dein Anbieter-Passwort erhalten wir nie. Die Registrierung kann durch Cloudflare Turnstile geschützt sein, das technische Verbindungsdaten verarbeitet, um Menschen von Bots zu unterscheiden (berechtigtes Interesse, Art. 6 Abs. 1 lit. f DSGVO). Aktivierst du Push-Mitteilungen, wird eine anonyme Zustelladresse deines Browser-Anbieters gespeichert und ausschließlich für die Zustellung deiner Mitteilungen verwendet. Offizielle Anliegen des Kontos @PrayCircle beruhen auf öffentlichen Daten von USGS und GDACS und enthalten keine personenbezogenen Daten.",
         ],
       },
       {
@@ -182,6 +184,7 @@ const content: Record<Lang, LegalDoc> = {
         heading: "6. Responsabili del trattamento e trasferimenti",
         paragraphs: [
           "Utilizziamo Vercel Inc. (hosting) e Turso/Iku (hosting del database) come responsabili del trattamento. I dati possono essere trattati in data center all'interno e all'esterno dello Spazio Economico Europeo; i trasferimenti al di fuori del SEE sono protetti dalle Clausole Contrattuali Standard della Commissione Europea ai sensi dell'art. 46 GDPR. Se la generazione di preghiere o la traduzione assistita da IA è attiva, il testo di un'intenzione (mai i dati del tuo account) può essere trattato da Anthropic.",
+          "Se scegli «Accedi con Google» o «Accedi con Apple», il rispettivo provider ci conferma la tua identità e ci comunica il tuo indirizzo email; non riceviamo mai la password del provider. La registrazione può essere protetta da Cloudflare Turnstile, che tratta dati tecnici di connessione per distinguere gli esseri umani dai bot (legittimo interesse, art. 6, par. 1, lett. f GDPR). Se attivi le notifiche push, viene conservato un indirizzo di recapito anonimo emesso dal fornitore del tuo browser, utilizzato esclusivamente per recapitare le tue notifiche. Le intenzioni ufficiali dell'account @PrayCircle si basano su dati pubblici di USGS e GDACS e non contengono dati personali.",
         ],
       },
       {

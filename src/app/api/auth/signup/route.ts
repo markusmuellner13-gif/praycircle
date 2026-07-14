@@ -4,6 +4,7 @@ import { getDb, newId } from "@/lib/db";
 import { createSession } from "@/lib/auth";
 import { validateUsername } from "@/lib/moderation";
 import { checkRateLimit, clientIp } from "@/lib/ratelimit";
+import { verifyTurnstile } from "@/lib/turnstile";
 
 export const dynamic = "force-dynamic";
 
@@ -25,6 +26,15 @@ export async function POST(request: Request) {
     }
     if (password.length < 8) {
       return NextResponse.json({ error: "password_short" }, { status: 400 });
+    }
+
+    // Cloudflare Turnstile bot check (no-op unless configured).
+    const human = await verifyTurnstile(
+      typeof body.turnstileToken === "string" ? body.turnstileToken : undefined,
+      clientIp(request)
+    );
+    if (!human) {
+      return NextResponse.json({ error: "turnstile" }, { status: 403 });
     }
 
     const db = await getDb();

@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/components/AppProvider";
+import OAuthButtons, { type AuthProviders } from "@/components/OAuthButtons";
+import TurnstileWidget from "@/components/TurnstileWidget";
 
 export default function SignupPage() {
   const { t, lang, setUser } = useApp();
@@ -13,6 +15,17 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [providers, setProviders] = useState<AuthProviders | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/auth/providers")
+      .then((r) => r.json())
+      .then(setProviders)
+      .catch(() => {});
+  }, []);
+
+  const needsTurnstile = Boolean(providers?.turnstileSiteKey);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +35,13 @@ export default function SignupPage() {
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ username, email, password, language: lang }),
+        body: JSON.stringify({
+          username,
+          email,
+          password,
+          language: lang,
+          turnstileToken,
+        }),
       });
       const data = await response.json();
       if (!response.ok) {
@@ -31,6 +50,8 @@ export default function SignupPage() {
           username_invalid: t.usernameInvalid,
           email_taken: t.emailTaken,
           password_short: t.passwordTooShort,
+          turnstile: t.turnstileFailed,
+          rate_limited: t.rateLimited,
         };
         setError(messages[data.error] ?? t.error);
         return;
@@ -86,10 +107,20 @@ export default function SignupPage() {
             onChange={(e) => setPassword(e.target.value)}
           />
         </div>
-        <button className="btn btn-gold btn-block" disabled={busy}>
+        {needsTurnstile && providers?.turnstileSiteKey && (
+          <TurnstileWidget
+            siteKey={providers.turnstileSiteKey}
+            onToken={setTurnstileToken}
+          />
+        )}
+        <button
+          className="btn btn-gold btn-block"
+          disabled={busy || (needsTurnstile && !turnstileToken)}
+        >
           {busy ? t.loading : t.createAccount}
         </button>
       </form>
+      <OAuthButtons providers={providers} />
       <p className="auth-switch">
         {t.haveAccount} <Link href="/login">{t.signIn}</Link>
       </p>

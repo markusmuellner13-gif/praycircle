@@ -13,6 +13,7 @@ export interface Post {
   createdAt: number;
   userId: string;
   username: string;
+  official?: boolean;
 }
 
 function timeAgo(
@@ -113,6 +114,11 @@ export default function PostCard({
     <article className="card">
       <div className="post-meta">
         <span className="username">@{post.username}</span>
+        {post.official && (
+          <span className="official-badge" title={t.officialBadge}>
+            ✓ {t.officialBadge}
+          </span>
+        )}
         <span>·</span>
         <span>{timeAgo(post.createdAt, t)}</span>
         <span style={{ marginLeft: "auto" }} />
@@ -120,7 +126,7 @@ export default function PostCard({
           <button className="link-btn" onClick={handleDelete} disabled={deleting}>
             {t.deletePost}
           </button>
-        ) : (
+        ) : post.official ? null : (
           <button
             className="link-btn"
             onClick={handleReport}
